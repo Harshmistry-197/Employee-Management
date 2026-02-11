@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine, Column, Integer, Float, Boolean
 from sqlalchemy.dialects.mysql import VARCHAR
 from sqlalchemy.orm import sessionmaker, declarative_base
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()                 # Useful only when the URL has to be stored in seperate file or environment variable.
 
 database_url = "mssql+pyodbc://localhost/harsh?driver=ODBC+Driver+17+for+SQL+Server"
 
@@ -12,9 +12,6 @@ try:
     print("Successfully connected to database")
 
     Base = declarative_base()
-
-    session = sessionmaker(bind=engine)
-    print("Successfully Created the Session")
 
 except Exception as e:
     print("Unknown Error Occured ",e)
@@ -31,35 +28,35 @@ class Employee(Base):
     PhoneNumber = Column(VARCHAR(20), unique=True)
     IsActive = Column(Boolean, nullable=False, default=True)
 
+# def insert_query():
+#     # Insert record
+#     try:
+#         new_employee = Employee(
+#             Name="Robert Chen",
+#             Email="r.chen@tech.com",
+#             Department="Engineering",
+#             Salary=95000.00,
+#             PhoneNumber="555-0987",
+#             IsActive=True
+#         )
+#
+#         session.add(new_employee)
+#         session.commit()
+#         print("Employee inserted successfully!")
+#
+#     except Exception as e:
+#         print("Error occured ",e)
 
 
-session = session()
-def insert_query():
-    # Insert record
-    try:
-        new_employee = Employee(
-            Name="Robert Chen",
-            Email="r.chen@tech.com",
-            Department="Engineering",
-            Salary=95000.00,
-            PhoneNumber="555-0987",
-            IsActive=True
-        )
-
-        session.add(new_employee)
-        session.commit()
-        print("Employee inserted successfully!")
-
-    except Exception as e:
-        print("Error occured ",e)
+SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)     # autocommit(False) will not automatically
+# commit to databse until db.commit is written, by default it is False
+# autoflush(False) it will not automatically staged to memory until it is written db.add(), by default it is True
 
 
-SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
-def get_db():
+print("Session Created Successfully")
+def get_db():                   # Open new Database session
     db = SessionLocal()
     try:
-        yield db
+        yield db                # Gives session to API Route and API Rote uses the session
     finally:
-        db.close()
-
-
+        db.close()              # Closes the session even if the API crases
